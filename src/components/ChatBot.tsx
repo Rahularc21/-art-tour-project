@@ -132,61 +132,61 @@ const ChatBot = () => {
 
   const isArtRelatedQuery = (query: string, conversationHistory: Message[]): boolean => {
     const artKeywords = [
+      // Art movements and styles
       'art', 'painting', 'sculpture', 'artist', 'museum', 'gallery',
       'renaissance', 'impressionism', 'cubism', 'modern art', 'contemporary art',
       'baroque', 'gothic', 'abstract', 'realism', 'surrealism', 'expressionism',
-      'van gogh', 'picasso', 'monet', 'da vinci', 'michelangelo', 'rembrandt',
+      'pop art', 'minimalism', 'conceptual art', 'performance art', 'digital art',
+      'installation art', 'land art', 'street art', 'graffiti', 'mural',
+      
+      // Art-related terms
       'exhibition', 'artwork', 'masterpiece', 'art history', 'art movement',
       'art style', 'art technique', 'art period', 'art collection', 'art gallery',
-      'art museum', 'art exhibition', 'art critic', 'art theory', 'art education'
+      'art museum', 'art exhibition', 'art critic', 'art theory', 'art education',
+      'art market', 'art auction', 'art dealer', 'art collector', 'art curator',
+      
+      // Art materials and techniques
+      'oil paint', 'watercolor', 'acrylic', 'pastel', 'charcoal', 'ink',
+      'canvas', 'brush', 'palette', 'easel', 'sketch', 'drawing', 'printmaking',
+      'etching', 'lithography', 'screen printing', 'ceramics', 'pottery',
+      
+      // Famous artists (last names)
+      'da vinci', 'michelangelo', 'picasso', 'vangogh', 'monet', 'rembrandt',
+      'warhol', 'dali', 'kandinsky', 'pollock', 'matisse', 'cezanne', 'goya',
+      'turner', 'vermeer', 'botticelli', 'caravaggio', 'rubens', 'titian',
+      
+      // Art institutions and locations
+      'louvre', 'metropolitan', 'moma', 'tate', 'prado', 'uffizi', 'hermitage',
+      'national gallery', 'guggenheim', 'british museum', 'vatican museums'
     ];
 
     // Check current query
     const queryLower = query.toLowerCase();
-    if (artKeywords.some(keyword => queryLower.includes(keyword))) {
-      return true;
+    const isArtQuery = artKeywords.some(keyword => queryLower.includes(keyword));
+    
+    if (!isArtQuery) {
+      // Check if the query is a follow-up to an art-related conversation
+      const recentMessages = conversationHistory.slice(-4); // Check last 4 messages
+      const hasArtContext = recentMessages.some(msg => 
+        artKeywords.some(keyword => msg.content.toLowerCase().includes(keyword))
+      );
+      
+      return hasArtContext;
     }
-
-    // Check conversation history for art-related context
-    const recentMessages = conversationHistory.slice(-4); // Check last 4 messages
-    for (const msg of recentMessages) {
-      const msgLower = msg.content.toLowerCase();
-      if (artKeywords.some(keyword => msgLower.includes(keyword))) {
-        return true;
-      }
-    }
-
-    return false;
+    
+    return true;
   };
 
   const getNonArtResponse = (query: string): string => {
-    const responses = [
-      `While I specialize in art history, I'd love to help you explore the fascinating world of art! Your question about "${query}" is interesting, but I'm designed to focus on art-related topics. Would you like to know about any of these art topics instead?
-      
-      • The history of your favorite art movement
-      • Famous artists and their masterpieces
-      • Different art techniques and styles
-      • Current art exhibitions and events
-      • How to appreciate and understand art better`,
-      
-      `I'm your dedicated art history guide! While I can't answer questions about "${query}", I'd be thrilled to share my knowledge about:
-      
-      • The stories behind famous paintings
-      • How different art movements evolved
-      • The lives of influential artists
-      • The meaning behind iconic artworks
-      • Tips for visiting art museums`,
-      
-      `As an art history specialist, I focus on helping people discover and understand art. Your question about "${query}" is outside my expertise, but I'd be happy to:
-      
-      • Explain different art periods and styles
-      • Recommend artists you might enjoy
-      • Share interesting art history facts
-      • Guide you through famous artworks
-      • Help you develop your art appreciation skills`
-    ];
-    
-    return responses[Math.floor(Math.random() * responses.length)];
+    return `I'm your dedicated art history guide! While I can't answer questions about "${query}", I'd be thrilled to share my knowledge about art. Here are some art-related topics we could explore:
+
+• The history of your favorite art movement
+• Famous artists and their masterpieces
+• Different art techniques and styles
+• Current art exhibitions and events
+• How to appreciate and understand art better
+
+What would you like to learn about art today? 🎨`;
   };
 
   const isGreeting = (query: string): boolean => {
@@ -240,20 +240,22 @@ const ChatBot = () => {
             role: "user",
             parts: [
               {
-                text: `You are an AI virtual art history tour guide named ArtSpark.
-                You are having a conversation about art history. Use the conversation history to maintain context.
-                If the user refers to something mentioned in previous messages, acknowledge and respond accordingly.
-                DO NOT introduce yourself or include greetings like "Hello", "Hi there", or "ArtSpark here" in your responses.
-                Respond to this query in a warm, engaging, and conversational tone.
-                Get straight to answering the question without any introduction.
-                Share interesting and accurate information about art history, artists, 
-                movements, techniques, and artworks. If appropriate, suggest related 
-                artists or works that might interest the user based on their query.
-                
-                Previous conversation context:
-                ${conversationHistory.map(msg => `${msg.role}: ${msg.parts[0].text}`).join('\n')}
-                
-                Current user query: ${prompt}`
+                text: `You are an AI virtual art history tour guide named ArtSpark. Your expertise is strictly limited to art history, art movements, artists, artworks, and art-related topics.
+
+IMPORTANT RULES:
+1. ONLY answer questions about art history, artists, art movements, artworks, art techniques, and art-related topics
+2. If asked about any non-art topic (like AI, technology, science, etc.), politely decline and suggest art-related topics instead
+3. Maintain a warm, engaging, and educational tone focused on art
+4. Use the conversation history to maintain context about art-related discussions
+5. If the user refers to something mentioned in previous messages, acknowledge and respond accordingly
+6. DO NOT introduce yourself or include greetings in responses
+7. Get straight to answering the art-related question without any introduction
+8. If unsure about an art-related fact, say so rather than making up information
+
+Previous conversation context:
+${conversationHistory.map(msg => `${msg.role}: ${msg.parts[0].text}`).join('\n')}
+
+Current user query: ${prompt}`
               }
             ]
           }
